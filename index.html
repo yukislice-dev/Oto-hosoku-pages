@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>英語の音の法則を見つけ出そう！</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@500;700;800&family=Lexend:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* 研究ノート（方眼紙）の上で、音の波形をモチーフに「法則を発見する」実験室。
+   左：カード置き場 ／ 右：ペアで作るグループ枠 */
+:root{
+  --paper:#f3f6fb;          /* 方眼紙の地 */
+  --grid:#dde5f1;           /* 方眼の線 */
+  --ink:#1d2a44;            /* 本文・線 */
+  --ink-soft:#5b6884;       /* 補足 */
+  --accent:#ff7a3d;         /* 発見のオレンジ */
+  --wave:#2f6fe4;           /* 音の青 */
+  --card:#ffffff;
+  --display:"Dela Gothic One","Hiragino Sans","Noto Sans JP",sans-serif;
+  --body:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+  --en:"Lexend","Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink);font-family:var(--body);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+button,input,textarea{font-family:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--wave);outline-offset:2px}
+
+/* ---------- header ---------- */
+header{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:12px 20px;background:var(--ink);color:#fff;
+  position:relative;
+}
+.title-wrap{display:flex;align-items:center;gap:12px;min-width:0}
+.title-wrap svg{flex:none}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(18px,2.4vw,26px);margin:0;letter-spacing:.02em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.sub{font-size:12px;color:#c7d2e8;margin:2px 0 0}
+.head-tools{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pair-field{display:flex;align-items:center;gap:6px;font-size:13px}
+.pair-field input{
+  width:150px;padding:7px 10px;border-radius:8px;border:none;background:#fff;color:var(--ink);font-size:14px;
+}
+.btn{
+  border:none;border-radius:999px;padding:9px 16px;font-weight:800;font-size:14px;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 3px 0 #c9541d}
+.btn-primary:active{transform:translateY(2px);box-shadow:0 1px 0 #c9541d}
+.btn-ghost{background:transparent;color:#fff;border:2px solid #4a5a7d}
+.btn-ghost:hover{border-color:#c7d2e8}
+
+/* ---------- layout ---------- */
+main{flex:1;display:grid;grid-template-columns:minmax(300px,380px) 1fr;min-height:0}
+.panel{min-height:0;overflow:auto;padding:16px 18px 40px}
+.tray{border-right:3px dashed #b9c6dc;background:rgba(255,255,255,.55)}
+.panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
+.panel-head h2{font-size:16px;margin:0;font-weight:800}
+.count{font-family:var(--en);font-size:13px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.how{font-size:12.5px;line-height:1.6;color:var(--ink-soft);margin:0 0 12px}
+.how b{color:var(--ink)}
+
+.tray-zone{display:grid;grid-template-columns:1fr;gap:8px;min-height:120px;border-radius:12px;padding:4px}
+.board-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.board-head h2{font-size:16px;margin:0;font-weight:800}
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:start}
+
+/* ---------- card ---------- */
+.card{
+  background:var(--card);border:2px solid var(--ink);border-radius:12px;
+  padding:8px 10px 8px 8px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;
+  box-shadow:3px 3px 0 var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;
+  cursor:grab;
+}
+.card .no{
+  grid-row:span 2;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;
+  display:grid;place-items:center;font-family:var(--en);font-weight:600;font-size:14px;
+}
+.card mark{background:linear-gradient(transparent 45%,#ffe25a 45%,#ffe25a 92%,transparent 92%);color:inherit;padding:0 2px;border-radius:2px}
+.card .sentence{font-family:var(--en);font-size:16px;font-weight:600;line-height:1.3}
+.card .plays{display:flex;gap:6px;flex-wrap:wrap}
+.play{
+  border:1.5px solid var(--wave);background:#eef4ff;color:var(--wave);border-radius:999px;
+  padding:3px 10px 3px 7px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:4px;
+  touch-action:manipulation;
+}
+.play.natural{border-color:var(--accent);background:#fff2ea;color:#c9541d}
+.play.playing{background:var(--wave);color:#fff}
+.play.natural.playing{background:var(--accent);color:#fff}
+.play svg{width:14px;height:14px}
+.card.dragging{opacity:.25}
+.ghost{position:fixed;z-index:50;pointer-events:none;transform:rotate(-2deg) scale(1.03);box-shadow:6px 8px 0 rgba(29,42,68,.35)}
+
+/* ---------- group frame ---------- */
+.group{
+  --gc:#2f6fe4;
+  background:#fff;border:2.5px solid var(--gc);border-radius:16px;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.g-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:color-mix(in srgb,var(--gc) 16%,white)}
+.g-label{
+  flex:none;width:28px;height:28px;border-radius:8px;background:var(--gc);color:#fff;
+  display:grid;place-items:center;font-family:var(--en);font-weight:600;
+}
+.g-name{
+  flex:1;min-width:0;border:none;border-bottom:2px dashed color-mix(in srgb,var(--gc) 60%,white);
+  background:transparent;font-size:15px;font-weight:800;padding:4px 2px;
+}
+.g-name::placeholder{color:color-mix(in srgb,var(--ink) 45%,white);font-weight:700}
+.g-del{border:none;background:transparent;font-size:20px;line-height:1;color:var(--ink-soft);padding:2px 6px;border-radius:6px}
+.g-del:hover{background:rgba(0,0,0,.06)}
+.g-zone{
+  min-height:96px;padding:10px;display:flex;flex-direction:column;gap:8px;
+  background-image:radial-gradient(color-mix(in srgb,var(--gc) 22%,white) 1.2px,transparent 1.3px);
+  background-size:14px 14px;
+}
+.g-zone .empty{margin:auto;font-size:13px;color:var(--ink-soft);text-align:center;padding:14px 0}
+.g-notes{display:grid;gap:8px;padding:10px;border-top:2px solid color-mix(in srgb,var(--gc) 30%,white)}
+.g-notes label{font-size:12.5px;font-weight:800;display:flex;align-items:center;gap:6px}
+.g-notes label .tag{
+  font-size:11px;padding:1px 7px;border-radius:999px;background:var(--gc);color:#fff;font-weight:700;
+}
+.g-notes textarea{
+  width:100%;min-height:52px;resize:vertical;border:1.5px solid #cfd8e8;border-radius:10px;padding:7px 9px;
+  font-size:14px;line-height:1.5;background:#fbfcff;
+}
+.zone-over{outline:3px dashed var(--accent);outline-offset:-3px;background-color:#fff6f0 !important}
+
+.add-group{
+  border:2.5px dashed #9fb0cd;background:rgba(255,255,255,.6);border-radius:16px;min-height:140px;
+  display:grid;place-items:center;font-weight:800;font-size:15px;color:var(--ink-soft);
+}
+.add-group:hover{border-color:var(--wave);color:var(--wave)}
+.add-group[disabled]{opacity:.45;cursor:not-allowed}
+
+/* ---------- dialog / toast ---------- */
+.overlay{position:fixed;inset:0;background:rgba(29,42,68,.45);display:none;place-items:center;z-index:80;padding:16px}
+.overlay.show{display:grid}
+.dialog{background:#fff;border-radius:16px;padding:20px 22px;max-width:380px;width:100%;border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink)}
+.dialog p{margin:0 0 16px;line-height:1.6;font-weight:700;white-space:pre-line}
+.dialog .row{display:flex;gap:10px;justify-content:flex-end}
+.btn-plain{background:#e9eef7;color:var(--ink)}
+.btn-danger{background:#e2453c;color:#fff}
+.dialog.teacher{max-width:560px}
+.dialog.teacher h2{font-size:17px;margin:0 0 12px}
+.t-list{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px}
+.t-list li{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1.5px solid #cfd8e8;border-radius:10px}
+.t-list .t-tag{font-size:12px;font-weight:800;background:var(--ink);color:#fff;border-radius:999px;padding:2px 9px;flex:none}
+.t-list .t-en{font-family:var(--en);font-weight:600;flex:1}
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;
+  padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;z-index:90;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.toast.show{opacity:1}
+.proto{
+  font-size:11px;background:#ffe9a8;color:#5a4300;border-radius:6px;padding:2px 8px;font-weight:700;margin-left:8px;vertical-align:middle;
+}
+
+@media (max-width:900px){
+  main{grid-template-columns:1fr;grid-template-rows:minmax(0,42%) minmax(0,1fr)}
+  .tray{border-right:none;border-bottom:3px dashed #b9c6dc}
+  .tray-zone{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="title-wrap">
+    <svg width="46" height="34" viewBox="0 0 46 34" aria-hidden="true">
+      <rect x="1" y="12" width="4" height="10" rx="2" fill="#ff7a3d"/>
+      <rect x="9" y="6" width="4" height="22" rx="2" fill="#ff7a3d"/>
+      <rect x="17" y="1" width="4" height="32" rx="2" fill="#fff"/>
+      <rect x="25" y="9" width="4" height="16" rx="2" fill="#fff"/>
+      <rect x="33" y="4" width="4" height="26" rx="2" fill="#6f9cf0"/>
+      <rect x="41" y="13" width="4" height="8" rx="2" fill="#6f9cf0"/>
+    </svg>
+    <div>
+      <h1>英語の<em>音の法則</em>を見つけ出そう！</h1>
+      <p class="sub">同じ変わり方をするカードを集めて、法則を見つけよう</p>
+    </div>
+  </div>
+  <div class="head-tools">
+    <div class="pair-field">
+      <label for="pairName">ペア</label>
+      <input id="pairName" type="text" placeholder="例：3番 田中・佐藤" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" id="savePdf" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+      PDFで保存
+    </button>
+    <button class="btn btn-ghost" id="resetAll" type="button">最初からやり直す</button>
+  </div>
+</header>
+
+<main>
+  <section class="panel tray" aria-labelledby="trayTitle">
+    <div class="panel-head">
+      <h2 id="trayTitle">カード置き場</h2>
+      <span class="count" id="trayCount"></span>
+    </div>
+    <p class="how"><b>はっきり</b>と<b>しぜん</b>を聞き比べよう。<mark style="background:linear-gradient(transparent 45%,#ffe25a 45%);padding:0 2px">マーカーの語</mark>の音に注目しよう。音の変わり方が同じカードを、右のグループに引っぱって入れよう。</p>
+    <div class="tray-zone" id="tray" data-zone="tray"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="boardTitle">
+    <div class="board-head">
+      <h2 id="boardTitle">私たちのグループ分け</h2>
+      <span class="count">グループにはペアで名前を付けよう</span>
+    </div>
+    <div class="groups" id="groups"></div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="dlgText">
+  <div class="dialog">
+    <p id="dlgText"></p>
+    <div class="row">
+      <button class="btn btn-plain" id="dlgNo" type="button">やめる</button>
+      <button class="btn btn-danger" id="dlgYes" type="button">OK</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ===== データ ===== */
+const CARDS = [
+  [1,"I can swim."],[2,"I like your big bag."],[3,"Come in, please."],[4,"I have ten pens."],
+  [5,"I drink water every day."],[6,"Please push the button."],[7,"Good job, Ken!"],[8,"Can you cook?"],
+  [9,"I use a computer."],[10,"I play tennis."],[11,"Stand up, please."],[12,"I like hot dogs."],
+  [13,"Look at the mountain."],[14,"I like cats and dogs."],[15,"It's a nice city."],[16,"See you next week."],
+  [17,"I live in Fukuoka."],[18,"Yes, I can."],[19,"Get up, Ken."],[20,"I go to school by bus."],
+  [21,"I can't swim."],[22,"I have an egg."],[23,"I don't know."]
+].map(([n,t])=>({n,t}));
+const TEXT = Object.fromEntries(CARDS.map(c=>[c.n,c.t]));
+/* 聞き比べてほしい語（1色のマーカーで示す。変化の種類は示さない） */
+const FOCUS = {"1": "can", "2": "big bag", "3": "Come in", "4": "ten", "5": "water", "6": "button", "7": "Good job", "8": "Can", "9": "computer", "10": "tennis", "11": "Stand up", "12": "hot dogs", "13": "mountain", "14": "and", "15": "city", "16": "next week", "17": "live in", "18": "can", "19": "Get up", "20": "to", "21": "can't", "22": "have an egg", "23": "don't know"};
+function sentenceHTML(n){
+  const t=TEXT[n],f=FOCUS[n];
+  const re=new RegExp("(^|[^A-Za-z'])("+f.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")(?![A-Za-z'])");
+  const m=t.match(re);
+  if(!m) return t;
+  const i=m.index+m[1].length;
+  return t.slice(0,i)+"<mark>"+t.slice(i,i+f.length)+"</mark>"+t.slice(i+f.length);
+}
+const COLORS = ["#2f6fe4","#ff7a3d","#14a37f","#a855f7","#e2453c","#d49a00","#0e9bb5","#db2777"];
+const LETTERS = "ABCDEFGH";
+const MAX_GROUPS = 8;
+/* 録音した音声の置き場所：audio/01_clear.mp3, audio/01_natural.mp3 … */
+const AUDIO_BASE = "audio/";
+const STORE_KEY = "oto-hosoku-v1";
+
+/* ===== 状態 ===== */
+function freshState(){
+  return {pair:"",tray:CARDS.map(c=>c.n),groups:[newGroup(0),newGroup(1)]};
+}
+function newGroup(i){return {id:"g"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),color:COLORS[i%COLORS.length],name:"",predict:"",rule:"",cards:[]}}
+let state;
+try{state=JSON.parse(localStorage.getItem(STORE_KEY))}catch(e){state=null}
+if(!state||!Array.isArray(state.tray)||!Array.isArray(state.groups)) state=freshState();
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state))}catch(e){}}
+
+/* ===== 描画 ===== */
+const trayEl=document.getElementById("tray");
+const groupsEl=document.getElementById("groups");
+const ICON_PLAY='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z"/><path d="M15.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+
+function cardHTML(n){
+  return `<div class="card" data-card="${n}">
+    <span class="no">${n}</span>
+    <span class="sentence">${sentenceHTML(n)}</span>
+    <span class="plays">
+      <button class="play clear" type="button" data-play="clear" data-n="${n}">${ICON_PLAY}はっきり</button>
+      <button class="play natural" type="button" data-play="natural" data-n="${n}">${ICON_PLAY}しぜん</button>
+    </span>
+  </div>`;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function render(){
+  trayEl.innerHTML=state.tray.map(cardHTML).join("")||'<p class="how" style="text-align:center;padding:20px 0">全部のカードを分けたね！<br>規則の欄も書けたかな？</p>';
+  document.getElementById("trayCount").textContent=`残り ${state.tray.length} / ${CARDS.length} 枚`;
+  groupsEl.innerHTML=state.groups.map((g,i)=>`
+    <article class="group" style="--gc:${g.color}" data-gid="${g.id}">
+      <div class="g-head">
+        <span class="g-label">${LETTERS[i]}</span>
+        <label class="visually-hidden" for="name-${g.id}" style="position:absolute;left:-9999px">グループ${LETTERS[i]}の名前</label>
+        <input class="g-name" id="name-${g.id}" data-field="name" value="${esc(g.name)}" placeholder="名前を付けよう（例：くっつく）" autocomplete="off">
+        <button class="g-del" type="button" data-del="${g.id}" aria-label="グループ${LETTERS[i]}を消す">×</button>
+      </div>
+      <div class="g-zone" data-zone="${g.id}">
+        ${g.cards.length?g.cards.map(cardHTML).join(""):'<p class="empty">ここにカードを入れよう</p>'}
+      </div>
+      <div class="g-notes">
+        <label for="pred-${g.id}"><span class="tag">予想</span>どんな音の変化かな？</label>
+        <textarea id="pred-${g.id}" data-field="predict" placeholder="例：前の単語と後ろの単語がくっついて聞こえる">${esc(g.predict)}</textarea>
+        <label for="rule-${g.id}"><span class="tag">規則</span>どんなときに起きる？</label>
+        <textarea id="rule-${g.id}" data-field="rule" placeholder="例：〜で終わる単語の次が、〜で始まるとき">${esc(g.rule)}</textarea>
+      </div>
+    </article>`).join("")+
+    `<button class="add-group" id="addGroup" type="button" ${state.groups.length>=MAX_GROUPS?"disabled":""}>＋ グループを増やす</button>`;
+  document.getElementById("pairName").value=state.pair||"";
+}
+
+/* 入力の保存 */
+groupsEl.addEventListener("input",e=>{
+  const f=e.target.dataset.field; if(!f) return;
+  const g=state.groups.find(x=>x.id===e.target.closest(".group").dataset.gid);
+  if(g){g[f]=e.target.value;save()}
+});
+document.getElementById("pairName").addEventListener("input",e=>{state.pair=e.target.value;save()});
+
+groupsEl.addEventListener("click",e=>{
+  if(e.target.closest("#addGroup")){
+    if(state.groups.length>=MAX_GROUPS) return;
+    const used=new Set(state.groups.map(g=>g.color));
+    const g=newGroup(0); g.color=COLORS.find(c=>!used.has(c))||COLORS[state.groups.length%COLORS.length];
+    state.groups.push(g);save();render();
+    setTimeout(()=>document.getElementById("name-"+g.id)?.focus(),30);
+    return;
+  }
+  const del=e.target.closest("[data-del]");
+  if(del){
+    const g=state.groups.find(x=>x.id===del.dataset.del);
+    const msg=g.cards.length?`このグループを消しますか？\n中のカード${g.cards.length}枚はカード置き場にもどります。`:"このグループを消しますか？";
+    ask(msg,"消す",()=>{
+      state.tray=state.tray.concat(g.cards).sort((a,b)=>a-b);
+      state.groups=state.groups.filter(x=>x!==g);save();render();
+    });
+  }
+});
+
+/* ===== 音声 ===== */
+let currentBtn=null,currentAudio=null;
+function stopAll(){
+  if(currentAudio){currentAudio.pause();currentAudio=null}
+  try{speechSynthesis.cancel()}catch(e){}
+  if(currentBtn){currentBtn.classList.remove("playing");currentBtn=null}
+}
+function pickVoice(){
+  try{
+    const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]US/i.test(v.lang));
+    return vs.find(v=>/Samantha|Google US|Aria|Jenny|Alex/i.test(v.name))||vs[0]||null;
+  }catch(e){return null}
+}
+function speakTTS(n,mode,done){
+  if(!("speechSynthesis" in window)){toast("この端末では音声を再生できません");done();return}
+  const v=pickVoice();
+  const mk=(text,rate)=>{const u=new SpeechSynthesisUtterance(text);u.lang="en-US";if(v)u.voice=v;u.rate=rate;return u};
+  let parts;
+  if(mode==="clear"){
+    parts=TEXT[n].replace(/[.,!?]/g,"").split(/\s+/).map(w=>mk(w,0.75));
+  }else parts=[mk(TEXT[n],1.05)];
+  parts[parts.length-1].onend=done;
+  parts[parts.length-1].onerror=done;
+  parts.forEach(p=>speechSynthesis.speak(p));
+}
+const missingAudio=new Set();
+function play(btn){
+  if(btn.dataset.extra){
+    const same=currentBtn===btn;stopAll();if(same)return;
+    currentBtn=btn;btn.classList.add("playing");
+    const a=new Audio(`${AUDIO_BASE}${btn.dataset.extra}_natural.mp3`);currentAudio=a;
+    const done=()=>{if(currentBtn===btn){btn.classList.remove("playing");currentBtn=null}};
+    a.addEventListener("ended",done);
+    a.play().catch(()=>{done();toast("音声ファイルが見つかりません")});
+    return;
+  }
+  const n=+btn.dataset.n,mode=btn.dataset.play;
+  const same=currentBtn===btn;
+  stopAll(); if(same) return;
+  currentBtn=btn;btn.classList.add("playing");
+  const done=()=>{if(currentBtn===btn){btn.classList.remove("playing");currentBtn=null}};
+  const key=`${String(n).padStart(2,"0")}_${mode}`;
+  if(missingAudio.has(key)){speakTTS(n,mode,done);return}
+  const a=new Audio(`${AUDIO_BASE}${key}.mp3`);
+  currentAudio=a;
+  let fell=false;
+  const fallback=()=>{if(fell)return;fell=true;missingAudio.add(key);if(currentBtn===btn){currentAudio=null;speakTTS(n,mode,done)}};
+  a.addEventListener("ended",done);
+  a.addEventListener("error",fallback);
+  a.play().catch(fallback);
+}
+document.addEventListener("click",e=>{const b=e.target.closest(".play");if(b){e.stopPropagation();play(b)}});
+
+/* ===== ドラッグ（タッチ・マウス共通） ===== */
+let drag=null;
+document.addEventListener("pointerdown",e=>{
+  const card=e.target.closest(".card");
+  if(!card||e.target.closest(".play")||e.button>0) return;
+  drag={card,n:+card.dataset.card,x0:e.clientX,y0:e.clientY,started:false,ghost:null,over:null,id:e.pointerId};
+});
+document.addEventListener("pointermove",e=>{
+  if(!drag||e.pointerId!==drag.id) return;
+  if(!drag.started){
+    if(Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6) return;
+    drag.started=true;
+    const r=drag.card.getBoundingClientRect();
+    drag.dx=drag.x0-r.left;drag.dy=drag.y0-r.top;
+    const g=drag.card.cloneNode(true);g.classList.add("ghost");g.style.width=r.width+"px";
+    document.body.appendChild(g);drag.ghost=g;drag.card.classList.add("dragging");
+  }
+  e.preventDefault();
+  drag.ghost.style.left=(e.clientX-drag.dx)+"px";
+  drag.ghost.style.top=(e.clientY-drag.dy)+"px";
+  const el=document.elementFromPoint(e.clientX,e.clientY);
+  const zone=el&&(el.closest("[data-zone]")||(el.closest(".group")&&el.closest(".group").querySelector("[data-zone]")));
+  if(zone!==drag.over){drag.over&&drag.over.classList.remove("zone-over");zone&&zone.classList.add("zone-over");drag.over=zone}
+  autoScroll(el,e.clientY);
+},{passive:false});
+function autoScroll(el,y){
+  const p=el&&el.closest(".panel"); if(!p) return;
+  const r=p.getBoundingClientRect(),edge=60;
+  if(y<r.top+edge)p.scrollTop-=14; else if(y>r.bottom-edge)p.scrollTop+=14;
+}
+function endDrag(e){
+  if(!drag||e.pointerId!==drag.id) return;
+  const d=drag;drag=null;
+  if(!d.started) return;
+  d.ghost.remove();d.card.classList.remove("dragging");
+  if(d.over){
+    d.over.classList.remove("zone-over");
+    const target=d.over.dataset.zone;
+    state.tray=state.tray.filter(x=>x!==d.n);
+    state.groups.forEach(g=>g.cards=g.cards.filter(x=>x!==d.n));
+    if(target==="tray"){state.tray.push(d.n);state.tray.sort((a,b)=>a-b)}
+    else{const g=state.groups.find(x=>x.id===target);g&&g.cards.push(d.n)}
+    save();render();
+  }
+}
+document.addEventListener("pointerup",endDrag);
+document.addEventListener("pointercancel",endDrag);
+
+/* ===== ダイアログ・トースト ===== */
+const ov=document.getElementById("overlay");
+let onYes=null;
+function ask(text,yesLabel,fn){
+  document.getElementById("dlgText").textContent=text;
+  document.getElementById("dlgYes").textContent=yesLabel;
+  onYes=fn;ov.classList.add("show");document.getElementById("dlgNo").focus();
+}
+document.getElementById("dlgNo").onclick=()=>{ov.classList.remove("show");onYes=null};
+document.getElementById("dlgYes").onclick=()=>{ov.classList.remove("show");const f=onYes;onYes=null;f&&f()};
+let tt;
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),2600)}
+
+document.getElementById("resetAll").onclick=()=>ask("全部のカードとグループを最初の状態にもどしますか？\n書いた予想や規則も消えます。","もどす",()=>{stopAll();state=freshState();save();render();toast("最初の状態にもどしました")});
+
+/* ===== PDF 出力（A4横・1ページ） ===== */
+function tokens(s){return String(s).match(/[A-Za-z0-9'’.,!?;:()\-]+\s*|\s+|./g)||[]}
+function wrap(ctx,text,maxW){
+  const lines=[];
+  String(text||"").split("\n").forEach(par=>{
+    let line="";
+    tokens(par).forEach(tk=>{
+      const test=line+tk;
+      if(ctx.measureText(test).width>maxW&&line){lines.push(line.trimEnd());line=tk.trimStart()}
+      else line=test;
+    });
+    lines.push(line.trimEnd());
+  });
+  return lines;
+}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+
+function drawSheet(){
+  const W=2339,H=1654; // A4横 200dpi
+  const c=document.createElement("canvas");c.width=W;c.height=H;
+  const ctx=c.getContext("2d");
+  const JP='"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif';
+  const EN='"Lexend","Helvetica Neue",Arial,sans-serif';
+  ctx.fillStyle="#ffffff";ctx.fillRect(0,0,W,H);
+  // 方眼
+  ctx.strokeStyle="#edf1f8";ctx.lineWidth=1.5;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+  // 見出し
+  const M=70;
+  ctx.fillStyle="#1d2a44";ctx.fillRect(0,0,W,150);
+  ctx.fillStyle="#ffffff";ctx.font=`800 56px ${JP}`;ctx.textBaseline="middle";
+  ctx.fillText("英語の音の法則を見つけ出そう！　分類シート",M,75);
+  ctx.textAlign="right";ctx.font=`700 34px ${JP}`;
+  const d=new Date();
+  ctx.fillText(`ペア：${state.pair||"（未記入）"}　　${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`,W-M,75);
+  ctx.textAlign="left";
+
+  const gs=state.groups,n=Math.max(gs.length,1);
+  const colsF=n<=2?n:(n<=4?2:3);
+  const rows=Math.ceil(n/colsF);
+  const top=190,bottom=H-(state.tray.length?140:60),gap=30;
+  const bw=(W-2*M-gap*(colsF-1))/colsF, bh=(bottom-top-gap*(rows-1))/rows;
+
+  // 収まる文字サイズを探す
+  function layout(g,fs){
+    ctx.font=`600 ${fs}px ${EN}`;
+    const lh=fs*1.35, inner=bw-48;
+    const cardLines=g.cards.flatMap(k=>wrap(ctx,`${k}.  ${TEXT[k]}`,inner-10));
+    ctx.font=`500 ${fs}px ${JP}`;
+    const pL=wrap(ctx,g.predict||"",inner), rL=wrap(ctx,g.rule||"",inner);
+    const h=70+ (cardLines.length||1)*lh + 20 + (fs*1.1) + pL.length*lh + 14 + (fs*1.1) + rL.length*lh + 30;
+    return {h,cardLines,pL,rL,lh};
+  }
+  let fs=34;
+  while(fs>14 && gs.some(g=>layout(g,fs).h>bh)) fs-=2;
+
+  gs.forEach((g,i)=>{
+    const x=M+(i%colsF)*(bw+gap), y=top+Math.floor(i/colsF)*(bh+gap);
+    const L=layout(g,fs);
+    ctx.fillStyle="#ffffff";rr(ctx,x,y,bw,bh,22);ctx.fill();
+    ctx.lineWidth=5;ctx.strokeStyle=g.color;ctx.stroke();
+    // ヘッダー帯
+    ctx.save();rr(ctx,x,y,bw,62,22);ctx.clip();ctx.fillStyle=g.color;ctx.globalAlpha=.16;ctx.fillRect(x,y,bw,62);ctx.restore();
+    ctx.fillStyle=g.color;rr(ctx,x+18,y+12,40,40,9);ctx.fill();
+    ctx.fillStyle="#fff";ctx.font=`600 26px ${EN}`;ctx.textAlign="center";ctx.fillText(LETTERS[i],x+38,y+33);ctx.textAlign="left";
+    ctx.fillStyle="#1d2a44";ctx.font=`800 30px ${JP}`;
+    ctx.fillText(wrap(ctx,g.name||"（名前なし）",bw-100)[0],x+72,y+33);
+    let cy=y+70+L.lh/2+4;
+    ctx.textBaseline="middle";
+    ctx.font=`600 ${fs}px ${EN}`;ctx.fillStyle="#1d2a44";
+    if(!L.cardLines.length){ctx.font=`500 ${fs}px ${JP}`;ctx.fillStyle="#8a95ab";ctx.fillText("（カードなし）",x+24,cy);cy+=L.lh}
+    L.cardLines.forEach(l=>{ctx.fillText(l,x+24,cy);cy+=L.lh});
+    cy+=10;
+    const label=(tag,t)=>{
+      ctx.fillStyle=g.color;ctx.font=`800 ${Math.round(fs*.8)}px ${JP}`;
+      ctx.fillText(`【${tag}】`,x+24,cy);cy+=fs*1.1;
+      ctx.fillStyle="#1d2a44";ctx.font=`500 ${fs}px ${JP}`;
+      (t.length&&t.join("")?t:["（未記入）"]).forEach(l=>{ctx.fillText(l,x+24,cy);cy+=L.lh});
+      cy+=6;
+    };
+    ctx.strokeStyle="#dbe2ee";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+20,cy-L.lh/2);ctx.lineTo(x+bw-20,cy-L.lh/2);ctx.stroke();
+    cy+=Math.round(fs*0.5);
+    label("予想：どんな音の変化？",L.pL);
+    label("規則：どんなときに起きる？",L.rL);
+  });
+  if(state.tray.length){
+    ctx.fillStyle="#5b6884";ctx.font=`700 30px ${JP}`;ctx.textBaseline="middle";
+    ctx.fillText(`まだ分けていないカード：${state.tray.join(", ")}`,M,H-70);
+  }
+  return c;
+}
+
+function jpegToPdf(dataUrl,imgW,imgH){
+  const bin=atob(dataUrl.split(",")[1]);
+  const img=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)img[i]=bin.charCodeAt(i);
+  const pw=841.89,ph=595.28;
+  const enc=new TextEncoder();
+  const chunks=[];let len=0;const offs=[];
+  const push=b=>{const u=typeof b==="string"?enc.encode(b):b;chunks.push(u);len+=u.length};
+  push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+  const obj=(i,body)=>{offs[i]=len;push(`${i} 0 obj\n`);body();push("\nendobj\n")};
+  obj(1,()=>push("<< /Type /Catalog /Pages 2 0 R >>"));
+  obj(2,()=>push("<< /Type /Pages /Kids [3 0 R] /Count 1 >>"));
+  obj(3,()=>push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`));
+  obj(4,()=>{push(`<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.length} >>\nstream\n`);push(img);push("\nendstream")});
+  const content=`q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`;
+  obj(5,()=>push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`));
+  const xref=len;
+  let x="xref\n0 6\n0000000000 65535 f \n";
+  for(let i=1;i<=5;i++)x+=String(offs[i]).padStart(10,"0")+" 00000 n \n";
+  push(x+`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob(chunks,{type:"application/pdf"});
+}
+
+let downloadsNS;
+if(window.claude&&typeof window.claude.use==="function"){
+  window.claude.use("downloads").then(ns=>{downloadsNS=ns}).catch(()=>{downloadsNS=null});
+}
+async function saveBlob(blob,filename){
+  if(downloadsNS){
+    try{await downloadsNS.save({filename,data:blob});toast("PDFを保存しました");return}
+    catch(err){
+      if(err&&err.code==="declined"){toast("保存をやめました");return}
+      if(err&&err.code==="rate_limited"){toast("少し待ってから、もう一度押してね");return}
+    }
+  }
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+  toast("PDFを保存しました");
+}
+document.getElementById("savePdf").onclick=async()=>{
+  try{
+    if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+    const c=drawSheet();
+    const blob=jpegToPdf(c.toDataURL("image/jpeg",0.9),c.width,c.height);
+    const name=`音の法則_${(state.pair||"ペア").replace(/[\\/:*?"<>|\s]+/g,"_")}.pdf`;
+    await saveBlob(blob,name);
+  }catch(err){toast("PDFを作れませんでした。もう一度押してね");console.error(err)}
+};
+
+try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
+render();
+</script>
+</body>
+</html>
