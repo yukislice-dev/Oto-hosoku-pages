@@ -262,6 +262,8 @@ const LETTERS = "ABCDEFGH";
 const MAX_GROUPS = 8;
 /* 録音した音声の置き場所：audio/01_clear.mp3, audio/01_natural.mp3 … */
 const AUDIO_BASE = "audio/";
+/* ファイル名と中身がずれている音声の対応（5と6の「しぜん」が逆） */
+const AUDIO_SWAP = {"05_natural":"06_natural","06_natural":"05_natural"};
 const STORE_KEY = "oto-hosoku-v1";
 
 /* ===== 状態 ===== */
@@ -292,7 +294,7 @@ function cardHTML(n){
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
 function render(){
-  trayEl.innerHTML=state.tray.map(cardHTML).join("")||'<p class="how" style="text-align:center;padding:20px 0">全部のカードを分けたね！<br>規則の欄も書けたかな？</p>';
+  trayEl.innerHTML=state.tray.map(cardHTML).join("")||'<p class="how" style="text-align:center;padding:20px 0">全部のカードを分けたね！<br>予想の欄も書けたかな？</p>';
   document.getElementById("trayCount").textContent=`残り ${state.tray.length} / ${CARDS.length} 枚`;
   groupsEl.innerHTML=state.groups.map((g,i)=>`
     <article class="group" style="--gc:${g.color}" data-gid="${g.id}">
@@ -308,8 +310,6 @@ function render(){
       <div class="g-notes">
         <label for="pred-${g.id}"><span class="tag">予想</span>どんな音の変化かな？</label>
         <textarea id="pred-${g.id}" data-field="predict" placeholder="例：前の単語と後ろの単語がくっついて聞こえる">${esc(g.predict)}</textarea>
-        <label for="rule-${g.id}"><span class="tag">規則</span>どんなときに起きる？</label>
-        <textarea id="rule-${g.id}" data-field="rule" placeholder="例：〜で終わる単語の次が、〜で始まるとき">${esc(g.rule)}</textarea>
       </div>
     </article>`).join("")+
     `<button class="add-group" id="addGroup" type="button" ${state.groups.length>=MAX_GROUPS?"disabled":""}>＋ グループを増やす</button>`;
@@ -387,7 +387,7 @@ function play(btn){
   const done=()=>{if(currentBtn===btn){btn.classList.remove("playing");currentBtn=null}};
   const key=`${String(n).padStart(2,"0")}_${mode}`;
   if(missingAudio.has(key)){speakTTS(n,mode,done);return}
-  const a=new Audio(`${AUDIO_BASE}${key}.mp3`);
+  const a=new Audio(`${AUDIO_BASE}${AUDIO_SWAP[key]||key}.mp3`);
   currentAudio=a;
   let fell=false;
   const fallback=()=>{if(fell)return;fell=true;missingAudio.add(key);if(currentBtn===btn){currentAudio=null;speakTTS(n,mode,done)}};
@@ -458,7 +458,7 @@ document.getElementById("dlgYes").onclick=()=>{ov.classList.remove("show");const
 let tt;
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),2600)}
 
-document.getElementById("resetAll").onclick=()=>ask("全部のカードとグループを最初の状態にもどしますか？\n書いた予想や規則も消えます。","もどす",()=>{stopAll();state=freshState();save();render();toast("最初の状態にもどしました")});
+document.getElementById("resetAll").onclick=()=>ask("全部のカードとグループを最初の状態にもどしますか？\n書いた予想も消えます。","もどす",()=>{stopAll();state=freshState();save();render();toast("最初の状態にもどしました")});
 
 /* ===== PDF 出力（A4横・1ページ） ===== */
 function tokens(s){return String(s).match(/[A-Za-z0-9'’.,!?;:()\-]+\s*|\s+|./g)||[]}
@@ -510,9 +510,9 @@ function drawSheet(){
     const lh=fs*1.35, inner=bw-48;
     const cardLines=g.cards.flatMap(k=>wrap(ctx,`${k}.  ${TEXT[k]}`,inner-10));
     ctx.font=`500 ${fs}px ${JP}`;
-    const pL=wrap(ctx,g.predict||"",inner), rL=wrap(ctx,g.rule||"",inner);
-    const h=70+ (cardLines.length||1)*lh + 20 + (fs*1.1) + pL.length*lh + 14 + (fs*1.1) + rL.length*lh + 30;
-    return {h,cardLines,pL,rL,lh};
+    const pL=wrap(ctx,g.predict||"",inner);
+    const h=70+ (cardLines.length||1)*lh + 20 + (fs*1.1) + pL.length*lh + 30;
+    return {h,cardLines,pL,lh};
   }
   let fs=34;
   while(fs>14 && gs.some(g=>layout(g,fs).h>bh)) fs-=2;
@@ -544,7 +544,6 @@ function drawSheet(){
     ctx.strokeStyle="#dbe2ee";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+20,cy-L.lh/2);ctx.lineTo(x+bw-20,cy-L.lh/2);ctx.stroke();
     cy+=Math.round(fs*0.5);
     label("予想：どんな音の変化？",L.pL);
-    label("規則：どんなときに起きる？",L.rL);
   });
   if(state.tray.length){
     ctx.fillStyle="#5b6884";ctx.font=`700 30px ${JP}`;ctx.textBaseline="middle";
